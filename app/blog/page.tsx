@@ -1,11 +1,11 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import Link from "next/link";
+import Image from "next/image";
+import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 export default function BlogPage() {
   // Mock blog data
@@ -17,7 +17,7 @@ export default function BlogPage() {
     date: `May ${i + 1}, 2023`,
     readTime: "5 min read",
     category: i % 3 === 0 ? "Technology" : i % 3 === 1 ? "Business" : "Lifestyle",
-  }))
+  }));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -122,5 +122,5 @@ export default function BlogPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

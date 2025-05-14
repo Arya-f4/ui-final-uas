@@ -1,14 +1,49 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Calendar, Clock, Tag, Share2, MessageSquare, ThumbsUp, Bookmark, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import Image from "next/image";
+import Link from "next/link";
+import { Calendar, Clock, Tag, Share2, MessageSquare, ThumbsUp, Bookmark, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { notFound } from "next/navigation";
 
-// This would normally come from a database
-const getArticleById = (id: string) => {
-  const articles = {
+// Define the article type for better type safety
+interface Article {
+  id: number;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: {
+    name: string;
+    role: string;
+    avatar: string;
+  };
+  date: string;
+  readTime: string;
+  category: string;
+  tags: string[];
+  featuredImage: string;
+  comments: {
+    id: number;
+    author: string;
+    avatar: string;
+    date: string;
+    content: string;
+    likes: number;
+  }[];
+  relatedArticles: {
+    id: number;
+    title: string;
+    excerpt: string;
+    category: string;
+    date: string;
+    image: string;
+  }[];
+}
+
+// Mock data (would normally come from a database)
+const getArticleById = (id: string): Article => {
+  const articles: { [key: string]: Article } = {
     "1": {
       id: 1,
       title: "The Future of Artificial Intelligence in Business",
@@ -279,13 +314,24 @@ const getArticleById = (id: string) => {
         },
       ],
     },
-  }
+  };
 
-  return articles[id as keyof typeof articles] || articles["1"]
+  const article = articles[id];
+  if (!article) {
+    notFound();
+  }
+  return article;
+};
+
+// Properly type the params prop for Next.js dynamic routes
+interface ArticleDetailPageProps {
+  params: {
+    id: string;
+  };
 }
 
-export default function ArticleDetailPage({ params }: { params: { id: string } }) {
-  const article = getArticleById(params.id)
+export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
+  const article = getArticleById(params.id);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -484,7 +530,7 @@ export default function ArticleDetailPage({ params }: { params: { id: string } }
                     <ThumbsUp className="h-4 w-4" />
                     <span>{comment.likes}</span>
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-8 gap-1 px-2">
+                  <Button variant="ghost" size="sm" className="h-8 gap нашего1 px-2">
                     <MessageSquare className="h-4 w-4" />
                     <span>Reply</span>
                   </Button>
@@ -545,5 +591,5 @@ export default function ArticleDetailPage({ params }: { params: { id: string } }
         </div>
       </div>
     </div>
-  )
+  );
 }
