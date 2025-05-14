@@ -1,7 +1,6 @@
 "use client"
 import Link from "next/link"
 import Image from "next/image"
-import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { ArrowRight, Car, Shield, Award, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -48,7 +47,7 @@ const latestArticles = [
       "Explore the latest innovations in electric vehicle technology and what the future holds for sustainable transportation.",
     date: "May 1, 2023",
     readTime: "8 min read",
-    image: "/placeholder.svg?height=400&width=600&text=Electric+Vehicles",
+    image: "/electric-car.png",
   },
   {
     id: 2,
@@ -57,7 +56,7 @@ const latestArticles = [
       "A comprehensive guide to understanding the key differences between luxury and performance vehicles and how to choose the right one for your needs.",
     date: "May 2, 2023",
     readTime: "10 min read",
-    image: "/placeholder.svg?height=400&width=600&text=Luxury+Performance",
+    image: "/sport-vs-luxury.jpg",
   },
   {
     id: 3,
@@ -66,12 +65,11 @@ const latestArticles = [
       "Learn the most important maintenance practices that will keep your vehicle running smoothly and extend its life by years.",
     date: "May 3, 2023",
     readTime: "7 min read",
-    image: "/placeholder.svg?height=400&width=600&text=Car+Maintenance",
+    image: "/car-lifespan.jpg",
   },
 ]
 
 export default function Home() {
-  const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -86,7 +84,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative min-h-screen bg-gradient-to-b from-background to-white py-20 dark:from-card dark:to-card">
+      <section className="relative min-h-screen bg-gradient-to-b from-background to-white dark:from-card dark:to-card">
         <div className="absolute inset-0 z-0">
           <video
             autoPlay

@@ -321,7 +321,7 @@ const getCarById = (id: string) => {
 
 export default function CarDetailPage({ params }: { params: { id: string } }) {
   const car = getCarById(params.id)
-  const [quantity, setQuantity] = useState(1)
+
   const [selectedImage, setSelectedImage] = useState(0)
   const { addItem } = useCart()
 
@@ -334,15 +334,7 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
     })
   }
 
-  const increaseQuantity = () => {
-    setQuantity((prev) => prev + 1)
-  }
 
-  const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity((prev) => prev - 1)
-    }
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -517,7 +509,7 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Technical Specifications</h3>
               <div className="rounded-md border">
-                {Object.entries(car.specifications).map(([key, value], index, array) => (
+                {Object.entries(car.specifications).map(([key, value], ) => (
                   <div key={key} className="flex flex-col border-b p-3 last:border-0 sm:flex-row">
                     <span className="mb-1 font-medium sm:mb-0 sm:w-1/3">{key}</span>
                     <span className="text-gray-600 dark:text-gray-400 sm:w-2/3">{value}</span>

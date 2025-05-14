@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, Calendar, Download, Eye, Search } from "lucide-react"
@@ -74,8 +73,7 @@ const transactions = [
 ]
 
 export default function TransactionsPage() {
-  const [selectedTransaction, setSelectedTransaction] = useState(null)
-
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -179,7 +177,7 @@ export default function TransactionsPage() {
                 <TableCell className="text-right">
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon" onClick={() => setSelectedTransaction(transaction)}>
+                      <Button variant="ghost" size="icon" >
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">View details</span>
                       </Button>

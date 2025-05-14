@@ -31,6 +31,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (savedCart) {
       try {
         setItems(JSON.parse(savedCart))
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         console.error("Failed to parse cart from localStorage")
       }

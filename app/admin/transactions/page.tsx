@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Image from "next/image"
 import { Calendar, Download, Eye, MoreHorizontal, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,8 +18,7 @@ import {
 } from "@/components/ui/dialog"
 
 export default function TransactionsPage() {
-  const [selectedTransaction, setSelectedTransaction] = useState(null)
-
+  
   // Mock transaction data
   const transactions = [
     {
