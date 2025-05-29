@@ -1,14 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Star, Truck, ShieldCheck, ArrowRight, Calendar, Fuel, Gauge, Car, MapPin } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { useCart } from "@/components/cart-provider"
+import { useCart } from "@/components/cart-provider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Added Avatar components
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"; // Added CardHeader, Title, Description
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, ArrowRight, Calendar, Car, Fuel, Gauge, MapPin, ShieldCheck, Star, Truck } from "lucide-react"; // Added missing icons
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation"; // Keep notFound for invalid IDs
+import { useState } from "react";
 
 // Updated car data with mapped images
 const getCarById = (id: string) => {
@@ -320,10 +322,13 @@ const getCarById = (id: string) => {
 }
 
 export default function CarDetailPage({ params }: { params: { id: string } }) {
-  const car = getCarById(params.id)
+  const car = getCarById(params.id);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const { addItem } = useCart();
 
-  const [selectedImage, setSelectedImage] = useState(0)
-  const { addItem } = useCart()
+  if (!car) {
+    notFound(); // If car data is not found, show 404 page
+  }
 
   const handleAddToCart = () => {
     addItem({
@@ -331,58 +336,63 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
       name: car.name,
       price: car.price,
       image: car.images[0],
-    })
-  }
+      quantity: 1, // Add quantity for CartItem type
+    });
+    // Consider adding a toast notification here
+    // toast({ title: "Added to Garage", description: `${car.name} has been added.` });
+  };
 
 
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <Link
-          href="/products"
-          className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-        >
-          ← Back to Inventory
-        </Link>
+    <div className="mb-6">
+      <Link
+        href="/products"
+        className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Inventory
+      </Link>
+    </div>
+
+    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
+      {/* Car Images (lg:col-span-3) */}
+      <div className="lg:col-span-3 space-y-4">
+        <div className="relative aspect-video md:aspect-square lg:aspect-[4/3] overflow-hidden rounded-lg border border-border bg-muted/30">
+          <Image
+            src={car.images[selectedImage] || "/placeholder.svg"}
+            alt={car.name}
+            fill
+            className="object-contain md:object-cover" // Use object-contain if aspect ratio of images varies a lot
+            priority
+          />
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {car.images.map((image, index) => (
+            <div
+              key={index}
+              className={`relative aspect-square cursor-pointer overflow-hidden rounded-md border ${
+                selectedImage === index ? "ring-2 ring-primary ring-offset-2" : "border-border hover:border-primary/70"
+              } transition-all`}
+              onClick={() => setSelectedImage(index)}
+            >
+              <Image
+                src={image || "/placeholder.svg"}
+                alt={`${car.name} - View ${index + 1}`}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-2">
-        {/* Car Images */}
-        <div className="space-y-4">
-          <div className="relative aspect-square overflow-hidden rounded-lg border bg-gray-100">
-            <Image
-              src={car.images[selectedImage] || "/placeholder.svg"}
-              alt={car.name}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {car.images.map((image, index) => (
-              <div
-                key={index}
-                className={`relative aspect-square cursor-pointer overflow-hidden rounded-md border bg-gray-100 ${
-                  selectedImage === index ? "ring-2 ring-primary" : ""
-                }`}
-                onClick={() => setSelectedImage(index)}
-              >
-                <Image
-                  src={image || "/placeholder.svg"}
-                  alt={`${car.name} - View ${index + 1}`}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Car Info */}
+      {/* Car Info (lg:col-span-2) */}
+      <div className="lg:col-span-2 space-y-6">
         <div>
-          <Badge className="mb-2">{car.category}</Badge>
-          <h1 className="mb-2 text-3xl font-bold">{car.name}</h1>
+          <Badge variant="secondary" className="mb-2 text-xs uppercase tracking-wider">{car.category}</Badge>
+          <h1 className="mb-1 text-3xl lg:text-4xl font-bold text-foreground">{car.name}</h1>
           <div className="mb-4 flex items-center">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
@@ -392,217 +402,184 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
                     i < Math.floor(car.rating)
                       ? "fill-primary text-primary"
                       : i < car.rating
-                        ? "fill-primary/50 text-primary"
-                        : "fill-muted text-muted-foreground"
+                        ? "fill-primary/50 text-primary" // For half stars, or just use floor
+                        : "fill-muted-foreground/20 text-muted-foreground/50"
                   }`}
                 />
               ))}
-              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                {car.rating} ({car.reviewCount} reviews)
+              <span className="ml-2 text-sm text-muted-foreground">
+                {car.rating.toFixed(1)} ({car.reviewCount} reviews)
               </span>
             </div>
           </div>
-          <div className="mb-6">
-            <p className="text-3xl font-bold">${car.price.toLocaleString()}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+          <div>
+            <p className="text-3xl lg:text-4xl font-bold text-primary">${car.price.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">
               Est. ${Math.round(car.price / 60).toLocaleString()}/mo with financing
             </p>
           </div>
-
-          <div className="mb-6">
-            <p className="mb-4 text-gray-700 dark:text-gray-300">{car.description}</p>
-          </div>
-
-          <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg border p-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm font-medium">Year</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{car.year}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Gauge className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm font-medium">Mileage</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{car.mileage.toLocaleString()} miles</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Fuel className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm font-medium">Fuel Type</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{car.fuelType}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Car className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm font-medium">Transmission</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{car.transmission}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <MapPin className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm font-medium">Location</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{car.location}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="h-5 w-5 rounded-full bg-primary/20 text-center text-xs font-bold text-primary">VIN</div>
-              <div>
-                <p className="text-sm font-medium">VIN</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{car.vin}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6 space-y-4">
-            <Button size="lg" className="w-full" onClick={handleAddToCart}>
-              Add to Garage
-            </Button>
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" size="lg">
-                Schedule Test Drive
-              </Button>
-              <Button variant="outline" size="lg">
-                Get Financing
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-3 rounded-lg border p-4">
-            <div className="flex items-center space-x-2">
-              <Truck className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-              <span className="text-sm">Free delivery within 50 miles</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <ShieldCheck className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-              <span className="text-sm">3-year/36,000-mile warranty included</span>
-            </div>
-          </div>
         </div>
-      </div>
 
-      {/* Car Details Tabs */}
-      <div className="mt-12">
-        <Tabs defaultValue="features">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="specifications">Specifications</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
-          <TabsContent value="features" className="mt-6">
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Key Features</h3>
-              <ul className="ml-6 list-disc space-y-2">
-                {car.features.map((feature, index) => (
-                  <li key={index} className="text-gray-700 dark:text-gray-300">
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </TabsContent>
-          <TabsContent value="specifications" className="mt-6">
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Technical Specifications</h3>
-              <div className="rounded-md border">
-                {Object.entries(car.specifications).map(([key, value], ) => (
-                  <div key={key} className="flex flex-col border-b p-3 last:border-0 sm:flex-row">
-                    <span className="mb-1 font-medium sm:mb-0 sm:w-1/3">{key}</span>
-                    <span className="text-gray-600 dark:text-gray-400 sm:w-2/3">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="reviews" className="mt-6">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold">Customer Reviews</h3>
-                <Button>Write a Review</Button>
-              </div>
-
-              <div className="space-y-6">
-                {car.reviews.map((review) => (
-                  <div key={review.id} className="space-y-2 rounded-lg border p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">{review.author}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{review.date}</p>
-                      </div>
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < review.rating ? "fill-primary text-primary" : "fill-muted text-muted-foreground"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-gray-700 dark:text-gray-300">{review.content}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      {/* Related Cars */}
-      <div className="mt-16">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Similar Vehicles</h2>
-          <Link
-            href="/products"
-            className="flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-          >
-            View all
-            <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
+        <div className="text-sm text-foreground/90 space-y-3 leading-relaxed">
+          <p>{car.description}</p>
         </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {car.relatedCars.map((relatedCar) => (
-            <Card key={relatedCar.id} className="overflow-hidden">
-              <Link href={`/products/${relatedCar.id}`} className="block">
-                <div className="relative aspect-square overflow-hidden">
-                  <Image
-                    src={relatedCar.image || "/placeholder.svg"}
-                    alt={relatedCar.name}
-                    fill
-                    className="object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
-              </Link>
-              <CardContent className="p-4">
-                <Link href={`/products/${relatedCar.id}`} className="block">
-                  <h3 className="mb-1 font-medium">{relatedCar.name}</h3>
-                </Link>
-                <p className="font-medium">${relatedCar.price.toLocaleString()}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-3 w-full"
-                  onClick={() => {
-                    addItem({
-                      id: relatedCar.id,
-                      name: relatedCar.name,
-                      price: relatedCar.price,
-                      image: relatedCar.image,
-                    })
-                  }}
-                >
-                  Add to Garage
-                </Button>
-              </CardContent>
-            </Card>
+
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg border border-border/50 p-4 bg-muted/20">
+          {[
+            { icon: Calendar, label: "Year", value: car.year.toString() },
+            { icon: Gauge, label: "Mileage", value: `${car.mileage.toLocaleString()} miles` },
+            { icon: Fuel, label: "Fuel Type", value: car.fuelType },
+            { icon: Car, label: "Transmission", value: car.transmission },
+            { icon: MapPin, label: "Location", value: car.location },
+            { icon: ShieldCheck, label: "VIN", value: car.vin }, // Using ShieldCheck for VIN
+          ].map(item => (
+            <div key={item.label} className="flex items-start space-x-2">
+              <item.icon className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
+                <p className="text-sm text-foreground">{item.value}</p>
+              </div>
+            </div>
           ))}
+        </div>
+
+        <div className="space-y-3">
+          <Button size="lg" className="w-full" onClick={handleAddToCart}>
+            Add to Garage
+          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" size="lg">Schedule Test Drive</Button>
+            <Button variant="outline" size="lg">Get Financing</Button>
+          </div>
+        </div>
+
+        <div className="space-y-2 rounded-lg border border-border/50 p-4 text-sm bg-muted/20">
+          <div className="flex items-center space-x-2 text-muted-foreground">
+            <Truck className="h-5 w-5 text-primary/80" />
+            <span>Free delivery within 50 miles</span>
+          </div>
+          <div className="flex items-center space-x-2 text-muted-foreground">
+            <ShieldCheck className="h-5 w-5 text-primary/80" />
+            <span>3-year/36,000-mile warranty included</span>
+          </div>
         </div>
       </div>
     </div>
+
+    {/* Car Details Tabs */}
+    <div className="mt-12 lg:mt-16">
+      <Tabs defaultValue="features" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
+          <TabsTrigger value="features">Features</TabsTrigger>
+          <TabsTrigger value="specifications">Specifications</TabsTrigger>
+          <TabsTrigger value="reviews">Reviews ({car.reviews.length})</TabsTrigger>
+        </TabsList>
+        <TabsContent value="features" className="mt-6 prose dark:prose-invert max-w-none prose-sm sm:prose-base">
+          <h3 className="text-xl font-semibold text-foreground mb-4">Key Features</h3>
+          <ul className="list-disc space-y-2 pl-5 text-foreground/90">
+            {car.features.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            ))}
+          </ul>
+        </TabsContent>
+        <TabsContent value="specifications" className="mt-6">
+          <h3 className="text-xl font-semibold text-foreground mb-4">Technical Specifications</h3>
+          <div className="rounded-md border border-border/50 overflow-hidden">
+            {Object.entries(car.specifications).map(([key, value]) => (
+              <div key={key} className="flex flex-col sm:flex-row p-3 even:bg-muted/30 odd:bg-transparent text-sm">
+                <span className="font-medium text-muted-foreground sm:w-1/3 lg:w-1/4 mb-1 sm:mb-0">{key}</span>
+                <span className="text-foreground sm:w-2/3 lg:w-3/4">{value}</span>
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+        <TabsContent value="reviews" className="mt-6">
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <h3 className="text-xl font-semibold text-foreground">Customer Reviews</h3>
+              <Button variant="outline">Write a Review</Button>
+            </div>
+            <div className="space-y-6">
+              {car.reviews.length > 0 ? car.reviews.map((review) => (
+                <Card key={review.id} className="bg-muted/30">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={review.avatar || "/placeholder.svg?text=User"} alt={review.author} />
+                          <AvatarFallback>{review.author.substring(0,2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <CardTitle className="text-base">{review.author}</CardTitle>
+                          <CardDescription className="text-xs">{review.date}</CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < review.rating ? "fill-primary text-primary" : "fill-muted-foreground/20 text-muted-foreground/50"}`} />
+                        ))}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="text-sm text-foreground/90 leading-relaxed pb-3">
+                    <p>{review.content}</p>
+                  </CardContent>
+                  {/* Optional: Add like/reply buttons here if needed */}
+                </Card>
+              )) : (
+                <p className="text-muted-foreground">No reviews yet for this vehicle.</p>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+
+    {/* Related Cars */}
+    <div className="mt-12 lg:mt-16">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">Similar Vehicles</h2>
+        <Button variant="ghost" asChild className="text-sm font-medium text-primary hover:text-primary/80">
+          <Link href="/products">
+            View all
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {car.relatedCars.map((relatedCar) => (
+          <Card key={relatedCar.id} className="overflow-hidden group hover:shadow-xl transition-shadow">
+            <Link href={`/products/${relatedCar.id}`} className="block">
+              <div className="relative aspect-video overflow-hidden bg-muted/30">
+                <Image
+                  src={relatedCar.image || "/placeholder.svg"}
+                  alt={relatedCar.name}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+            </Link>
+            <CardContent className="p-4 space-y-1">
+              <Link href={`/products/${relatedCar.id}`} className="block">
+                <h3 className="font-medium text-foreground group-hover:text-primary transition-colors truncate">{relatedCar.name}</h3>
+              </Link>
+               {relatedCar.category && <p className="text-xs text-muted-foreground">{relatedCar.category}</p>}
+              <p className="text-lg font-semibold text-primary">${relatedCar.price.toLocaleString()}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 w-full"
+                onClick={() => {
+                  addItem({ id: relatedCar.id, name: relatedCar.name, price: relatedCar.price, image: relatedCar.image, quantity: 1 });
+                }}
+              >
+                Add to Garage
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </div>
   )
 }
