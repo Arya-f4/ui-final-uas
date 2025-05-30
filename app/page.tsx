@@ -364,7 +364,7 @@ export default function Home() {
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   type="email"
                   placeholder="Enter your email address"
-                  className="flex h-11 md:h-12 w-full rounded-md border border-input bg-background px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-1"
+                  className="flex h-11 md:h-12 w-full border-indigo-600 rounded-md border  bg-background px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-1"
                 />
                 <Button type="submit" size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md transform hover:scale-105 active:scale-95 transition-all duration-300 h-11 md:h-12">
                   Subscribe

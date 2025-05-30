@@ -424,7 +424,7 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
           <p>{car.description}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg border border-border/50 p-4 bg-muted/20">
+        <div className="grid grid-cols-2 border-indigo-600 gap-x-4 gap-y-3 rounded-lg border border-border/50 p-4 bg-muted/20">
           {[
             { icon: Calendar, label: "Year", value: car.year.toString() },
             { icon: Gauge, label: "Mileage", value: `${car.mileage.toLocaleString()} miles` },

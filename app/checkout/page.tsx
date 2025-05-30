@@ -28,7 +28,7 @@ export default function CheckoutPage() {
   if (orderPlaced) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-16">
-        <div className="rounded-lg border bg-card p-8 text-center">
+        <div className="rounded-lg border border-indigo-600 bg-card p-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +62,7 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-16">
-        <div className="rounded-lg border bg-card p-8 text-center">
+        <div className="rounded-lg border border-indigo-600 bg-card p-8 text-center">
           <h1 className="mb-4 text-2xl font-bold">Your Garage is Empty</h1>
           <p className="mb-8 text-muted-foreground">Looks like you haven&apos;t added any vehicles to your garage yet.</p>
           <Button asChild>
@@ -90,13 +90,13 @@ export default function CheckoutPage() {
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Order Summary */}
         <div className="lg:col-span-2">
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-indigo-600">
             <div className="p-6">
               <h2 className="mb-4 text-xl font-semibold">Order Summary</h2>
               <div className="space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex items-center gap-4">
-                    <div className="relative h-20 w-20 overflow-hidden rounded-md border">
+                    <div className="relative h-20 w-20 overflow-hidden rounded-md border-indigo-600 border">
                       <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
                     </div>
                     <div className="flex-1">
@@ -143,7 +143,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Customer Information */}
-          <div className="mt-8 rounded-lg border">
+          <div className="mt-8 rounded-lg border border-indigo-600">
             <div className="p-6">
               <h2 className="mb-4 text-xl font-semibold">Customer Information</h2>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -168,7 +168,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Delivery Information */}
-          <div className="mt-8 rounded-lg border">
+          <div className="mt-8 rounded-lg border border-indigo-600">
             <div className="p-6">
               <h2 className="mb-4 text-xl font-semibold">Delivery Information</h2>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -197,11 +197,11 @@ export default function CheckoutPage() {
           </div>
 
           {/* Payment Information */}
-          <div className="mt-8 rounded-lg border">
+          <div className="mt-8 rounded-lg border border-indigo-600">
             <div className="p-6">
               <h2 className="mb-4 text-xl font-semibold">Payment Method</h2>
               <RadioGroup defaultValue="credit-card">
-                <div className="flex items-center space-x-2 rounded-lg border p-4">
+                <div className="flex items-center space-x-2 rounded-lg border border-indigo-600 p-4">
                   <RadioGroupItem value="credit-card" id="credit-card" />
                   <Label htmlFor="credit-card" className="flex items-center">
                     <CreditCard className="mr-2 h-5 w-5" />
@@ -235,7 +235,7 @@ export default function CheckoutPage() {
 
         {/* Order Total */}
         <div className="lg:col-span-1">
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-indigo-600">
             <div className="p-6">
               <h2 className="mb-4 text-xl font-semibold">Order Total</h2>
               <div className="space-y-4">
