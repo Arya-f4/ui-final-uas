@@ -6,15 +6,15 @@ import { Input } from "@/components/ui/input"
 
 import { Label } from "@/components/ui/label"
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Car, Calendar, Clock, CreditCard, FileText, Settings, Users, ShoppingBag, LogOut } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Calendar, Car, Clock, CreditCard, FileText, LogOut, Settings, ShoppingBag, Users } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { useState } from "react"
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview")
@@ -385,8 +385,7 @@ export default function DashboardPage() {
                             <Button variant="outline" size="sm">
                               View
                             </Button>
-                            <Button size="sm">Add to Cart</Button>
-                          </div>
+                           </div>
                         </div>
                       </div>
                     </CardContent>
