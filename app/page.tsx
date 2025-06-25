@@ -161,7 +161,7 @@ export default function Home() {
             <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/80 shadow-lg transform hover:scale-105 transition-transform duration-300">
               <Link href="/products">Browse Cars</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-primary text-primary bg-white/10 hover:bg-primary hover:text-primary-foreground backdrop-blur-sm shadow-lg transform hover:scale-105 transition-transform duration-300">
+            <Button asChild variant="outline" size="lg" className="border-primary text-primary bg-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm shadow-lg transform hover:scale-105 transition-transform duration-300">
               <Link href="/contact">Schedule Test Drive</Link>
             </Button>
           </motion.div>
