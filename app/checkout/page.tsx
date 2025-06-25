@@ -1,23 +1,23 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { ArrowLeft, CreditCard, Trash } from "lucide-react"
+import { useCart } from "@/components/cart-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
-import { useCart } from "@/components/cart-provider"
+import { ArrowLeft, CreditCard, Trash } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { useState } from "react"
 
 export default function CheckoutPage() {
-  const { items, removeItem, updateQuantity, subtotal, clearCart } = useCart()
+  const { items, removeItem, updateItemQuantity, totalPrice, clearCart } = useCart()
   const [orderPlaced, setOrderPlaced] = useState(false)
 
-  const tax = subtotal * 0.08
+  const tax = totalPrice * 0.08
   const deliveryFee = 499
-  const total = subtotal + tax + deliveryFee
+  const total = totalPrice + tax + deliveryFee
 
   const handlePlaceOrder = () => {
     // In a real app, this would submit the order to a backend
@@ -107,7 +107,7 @@ export default function CheckoutPage() {
                           variant="outline"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateItemQuantity(item.id, item.quantity - 1)}
                         >
                           <span>-</span>
                           <span className="sr-only">Decrease quantity</span>
@@ -117,7 +117,7 @@ export default function CheckoutPage() {
                           variant="outline"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
                         >
                           <span>+</span>
                           <span className="sr-only">Increase quantity</span>
@@ -241,7 +241,7 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${subtotal.toLocaleString()}</span>
+                  <span>${totalPrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Tax</span>
