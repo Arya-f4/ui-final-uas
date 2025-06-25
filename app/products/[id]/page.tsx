@@ -1,18 +1,32 @@
 "use client"
 
-import { useCart } from "@/components/cart-provider";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Added Avatar components
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"; // Added CardHeader, Title, Description
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, ArrowRight, Calendar, Car, Fuel, Gauge, MapPin, ShieldCheck, Star, Truck } from "lucide-react"; // Added missing icons
-import Image from "next/image";
+import { ArrowLeft, ArrowRight, Calendar, Car, Fuel, Gauge, MapPin, ShieldCheck, Star, Truck } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation"; // Keep notFound for invalid IDs
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
+// --- Mock Cart Logic (to make component self-contained) ---
+const CartContext = createContext<never>(null);
 
-// Updated car data with mapped images
+const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    // In a real app, this would be a more robust provider.
+    // For this self-contained example, we'll return a mock function.
+    return {
+      addItem: (item: any) => {
+        console.log("Added to cart:", item);
+        // Here you would typically show a toast notification.
+      },
+    };
+  }
+  return context;
+};
+
+// --- Mock Data ---
 const getCarById = (id: string) => {
   const cars = {
     "1": {
@@ -33,10 +47,10 @@ const getCarById = (id: string) => {
       stockNumber: "MB12345",
       location: "Main Showroom",
       images: [
-        "/products/2023-mercedes-benz-sclass.avif",
-        "/products/2023-mercedes-benz-sclass.avif",
-        "/products/2023-mercedes-benz-sclass.avif",
-        "/products/2023-mercedes-benz-sclass.avif",
+        "https://images.unsplash.com/photo-1616421233880-ca927d2e20b6?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1616421234424-038c114a8f9b?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1616421234390-5b4d7c9f7a7c?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1616421234336-6ide4a32b2f6?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       ],
       description:
         "Experience unparalleled luxury with the 2023 Mercedes-Benz S-Class. This flagship sedan represents the pinnacle of automotive engineering, combining cutting-edge technology with exquisite craftsmanship. With its powerful V8 engine, advanced driver assistance systems, and sumptuous interior, the S-Class delivers an exceptional driving experience.",
@@ -71,27 +85,31 @@ const getCarById = (id: string) => {
       relatedCars: [
         {
           id: 2,
-          name: "2023 BMW 7 Series",
-          price: 95000,
-          image: "/products/2022-bmw-x3.avif", // Using BMW X5 image as a placeholder since 7 Series image isn't available
+          name: "2023 BMW X5",
+          price: 65000,
+          category: "Luxury SUV",
+          image: "https://images.unsplash.com/photo-1587930982522-e8b843d191a8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
         },
         {
           id: 3,
-          name: "2023 Audi A8",
-          price: 88000,
-          image: "/products/2020-audi-q7.avif", // Using Audi Q7 image as a placeholder
+          name: "2023 Tesla Model 3",
+          price: 45000,
+          category: "Electric",
+          image: "https://images.unsplash.com/photo-1554495532-3e28a47d3368?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
         },
         {
           id: 4,
           name: "2023 Lexus LS",
           price: 78000,
-          image: "/products/2022-lexus-es350.jpg", // Using Lexus ES image as a placeholder
+          category: "Luxury Sedan",
+          image: "https://images.unsplash.com/photo-1623862414707-b04e6c967672?q=80&w=1854&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
         },
       ],
       reviews: [
         {
           id: 1,
           author: "Michael Thompson",
+          avatar: "/placeholder.svg?text=MT",
           rating: 5,
           date: "March 15, 2023",
           content:
@@ -100,6 +118,7 @@ const getCarById = (id: string) => {
         {
           id: 2,
           author: "Sarah Johnson",
+          avatar: "/placeholder.svg?text=SJ",
           rating: 5,
           date: "February 28, 2023",
           content:
@@ -108,6 +127,7 @@ const getCarById = (id: string) => {
         {
           id: 3,
           author: "David Wilson",
+          avatar: "/placeholder.svg?text=DW",
           rating: 4,
           date: "January 10, 2023",
           content:
@@ -133,10 +153,10 @@ const getCarById = (id: string) => {
       stockNumber: "BMW45678",
       location: "North Showroom",
       images: [
-        "/products/2022-bmw-x3.avif",
-        "/products/2022-bmw-x3.avif",
-        "/products/2022-bmw-x3.avif",
-        "/products/2022-bmw-x3.avif",
+        "https://images.unsplash.com/photo-1587930982522-e8b843d191a8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1593451368295-a8df162989d3?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1593451368388-15267e35435e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1593451368812-a18541e2a87b?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       ],
       description:
         "The 2023 BMW X5 combines versatility, luxury, and performance in a compelling package. This premium midsize SUV offers a refined driving experience with its powerful engine options, sophisticated all-wheel-drive system, and advanced technology features. The spacious and well-appointed interior provides comfort for all passengers, while the generous cargo capacity ensures practicality for everyday use.",
@@ -170,28 +190,32 @@ const getCarById = (id: string) => {
       },
       relatedCars: [
         {
-          id: 5,
-          name: "2023 Mercedes-Benz GLE",
-          price: 63000,
-          image: "/products/2023-mercedes-benz-sclass.avif", // Using S-Class image as a placeholder
+          id: 1,
+          name: "2023 Mercedes-Benz S-Class",
+          price: 110000,
+          category: "Luxury Sedan",
+          image: "https://images.unsplash.com/photo-1616421233880-ca927d2e20b6?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
           id: 6,
           name: "2023 Audi Q7",
           price: 58000,
-          image: "/products/2020-audi-q7.avif",
+          category: "Luxury SUV",
+          image: "https://images.unsplash.com/photo-1603552033878-b2a61337b51f?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
           id: 7,
           name: "2023 Volvo XC90",
           price: 56000,
-          image: "/products/2021-land-rover-range-rover-sport.jpg", // Using Range Rover Sport as a placeholder
+          category: "Luxury SUV",
+          image: "https://images.unsplash.com/photo-1617469747534-b946a4a4e75d?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
       ],
       reviews: [
         {
           id: 1,
           author: "Jennifer Adams",
+          avatar: "/placeholder.svg?text=JA",
           rating: 5,
           date: "April 2, 2023",
           content:
@@ -200,6 +224,7 @@ const getCarById = (id: string) => {
         {
           id: 2,
           author: "Robert Chen",
+          avatar: "/placeholder.svg?text=RC",
           rating: 4,
           date: "March 18, 2023",
           content:
@@ -208,6 +233,7 @@ const getCarById = (id: string) => {
         {
           id: 3,
           author: "Emily Parker",
+          avatar: "/placeholder.svg?text=EP",
           rating: 5,
           date: "February 5, 2023",
           content:
@@ -233,10 +259,10 @@ const getCarById = (id: string) => {
       stockNumber: "TES78901",
       location: "EV Showroom",
       images: [
-        "/products/2019-tesla-model3.avif",
-        "/products/2019-tesla-model3.avif",
-        "/products/2019-tesla-model3.avif",
-        "/products/2019-tesla-model3.avif",
+        "https://images.unsplash.com/photo-1554495532-3e28a47d3368?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1620892379967-27a3c3555955?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1620892379743-39d7fb88a287?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1620892379904-14249a46a64b?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       ],
       description:
         "The 2023 Tesla Model 3 continues to revolutionize the automotive industry with its cutting-edge electric technology, impressive range, and minimalist design. This all-electric sedan delivers exhilarating performance with instant torque and precise handling. The spacious, tech-forward interior features a distinctive 15-inch touchscreen that controls nearly all vehicle functions. With regular over-the-air updates, the Model 3 continuously improves and gains new features over time.",
@@ -273,25 +299,29 @@ const getCarById = (id: string) => {
           id: 8,
           name: "2023 Polestar 2",
           price: 48000,
-          image: "/products/2023-chevrolette-corvette.jpg", // Using Corvette as a placeholder
+          category: "Electric",
+          image: "https://images.unsplash.com/photo-1631557815367-13344641323f?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
           id: 9,
           name: "2023 BMW i4",
           price: 52000,
-          image: "/products/2022-bmw-x3.avif", // Using BMW X5 as a placeholder
+          category: "Electric",
+          image: "https://images.unsplash.com/photo-1631557815367-13344641323f?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
           id: 10,
           name: "2023 Audi e-tron GT",
           price: 104000,
-          image: "/products/2020-audi-q7.avif", // Using Audi Q7 as a placeholder
+          category: "Electric",
+          image: "https://images.unsplash.com/photo-1631557815367-13344641323f?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
         },
       ],
       reviews: [
         {
           id: 1,
           author: "Alex Rivera",
+          avatar: "/placeholder.svg?text=AR",
           rating: 5,
           date: "April 10, 2023",
           content:
@@ -300,6 +330,7 @@ const getCarById = (id: string) => {
         {
           id: 2,
           author: "Priya Patel",
+          avatar: "/placeholder.svg?text=PP",
           rating: 4,
           date: "March 25, 2023",
           content:
@@ -308,6 +339,7 @@ const getCarById = (id: string) => {
         {
           id: 3,
           author: "Marcus Johnson",
+          avatar: "/placeholder.svg?text=MJ",
           rating: 5,
           date: "March 2, 2023",
           content:
@@ -315,10 +347,9 @@ const getCarById = (id: string) => {
         },
       ],
     },
-  }
+  };
 
-  // If the ID doesn't exist in our mock data, return the first car as a fallback
-  return cars[id as keyof typeof cars] || cars["1"]
+  return cars[id as keyof typeof cars] || null;
 }
 
 export default function CarDetailPage({ params }: { params: { id: string } }) {
@@ -327,259 +358,256 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
   const { addItem } = useCart();
 
   if (!car) {
-    notFound(); // If car data is not found, show 404 page
+    return (
+        <div className="container mx-auto flex h-[60vh] flex-col items-center justify-center px-4 py-8 text-center">
+            <h1 className="text-4xl font-bold tracking-tight">404 - Vehicle Not Found</h1>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Sorry, the car you are looking for does not exist or has been moved.
+            </p>
+            <Button asChild className="mt-8">
+                <Link href="/products">Back to Inventory</Link>
+            </Button>
+        </div>
+    );
   }
 
   const handleAddToCart = () => {
     addItem({
-      id: car.id,
+      id: car.id.toString(), 
       name: car.name,
       price: car.price,
       image: car.images[0],
-      quantity: 1, // Add quantity for CartItem type
+      quantity: 1, 
     });
-    // Consider adding a toast notification here
-    // toast({ title: "Added to Garage", description: `${car.name} has been added.` });
   };
-
-
 
   return (
     <div className="container mx-auto px-4 py-8">
-    <div className="mb-6">
-      <Link
-        href="/products"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Inventory
-      </Link>
-    </div>
-
-    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
-      {/* Car Images (lg:col-span-3) */}
-      <div className="lg:col-span-3 space-y-4">
-        <div className="relative aspect-video md:aspect-square lg:aspect-[4/3] overflow-hidden rounded-lg border border-border bg-muted/30">
-          <Image
-            src={car.images[selectedImage] || "/placeholder.svg"}
-            alt={car.name}
-            fill
-            className="object-contain md:object-cover" // Use object-contain if aspect ratio of images varies a lot
-            priority
-          />
-        </div>
-        <div className="grid grid-cols-4 gap-2">
-          {car.images.map((image, index) => (
-            <div
-              key={index}
-              className={`relative aspect-square cursor-pointer overflow-hidden rounded-md border ${
-                selectedImage === index ? "ring-2 ring-primary ring-offset-2" : "border-border hover:border-primary/70"
-              } transition-all`}
-              onClick={() => setSelectedImage(index)}
-            >
-              <Image
-                src={image || "/placeholder.svg"}
-                alt={`${car.name} - View ${index + 1}`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
+      <div className="mb-6">
+        <Link
+          href="/products"
+          className="inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Inventory
+        </Link>
       </div>
 
-      {/* Car Info (lg:col-span-2) */}
-      <div className="lg:col-span-2 space-y-6">
-        <div>
-          <Badge variant="secondary" className="mb-2 text-xs uppercase tracking-wider">{car.category}</Badge>
-          <h1 className="mb-1 text-3xl lg:text-4xl font-bold text-foreground">{car.name}</h1>
-          <div className="mb-4 flex items-center">
-            <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-5 w-5 ${
-                    i < Math.floor(car.rating)
-                      ? "fill-primary text-primary"
-                      : i < car.rating
-                        ? "fill-primary/50 text-primary" // For half stars, or just use floor
-                        : "fill-muted-foreground/20 text-muted-foreground/50"
-                  }`}
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
+        <div className="space-y-4 lg:col-span-3">
+          <div className="relative aspect-video overflow-hidden rounded-lg border border-border bg-muted/30 md:aspect-square lg:aspect-[4/3]">
+            <img
+              src={car.images[selectedImage] || "/placeholder.svg"}
+              alt={car.name}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {car.images.map((image, index) => (
+              <div
+                key={index}
+                className={`relative aspect-square cursor-pointer overflow-hidden rounded-md border transition-all ${
+                  selectedImage === index ? "ring-2 ring-primary ring-offset-2" : "border-border hover:border-primary/70"
+                }`}
+                onClick={() => setSelectedImage(index)}
+              >
+                <img
+                  src={image || "/placeholder.svg"}
+                  alt={`${car.name} - View ${index + 1}`}
+                  className="h-full w-full object-cover"
                 />
-              ))}
-              <span className="ml-2 text-sm text-muted-foreground">
-                {car.rating.toFixed(1)} ({car.reviewCount} reviews)
-              </span>
-            </div>
+              </div>
+            ))}
           </div>
+        </div>
+
+        <div className="space-y-6 lg:col-span-2">
           <div>
-            <p className="text-3xl lg:text-4xl font-bold text-primary">${car.price.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Est. ${Math.round(car.price / 60).toLocaleString()}/mo with financing
-            </p>
-          </div>
-        </div>
-
-        <div className="text-sm text-foreground/90 space-y-3 leading-relaxed">
-          <p>{car.description}</p>
-        </div>
-
-        <div className="grid grid-cols-2 border-indigo-600 gap-x-4 gap-y-3 rounded-lg border border-border/50 p-4 bg-muted/20">
-          {[
-            { icon: Calendar, label: "Year", value: car.year.toString() },
-            { icon: Gauge, label: "Mileage", value: `${car.mileage.toLocaleString()} miles` },
-            { icon: Fuel, label: "Fuel Type", value: car.fuelType },
-            { icon: Car, label: "Transmission", value: car.transmission },
-            { icon: MapPin, label: "Location", value: car.location },
-            { icon: ShieldCheck, label: "VIN", value: car.vin }, // Using ShieldCheck for VIN
-          ].map(item => (
-            <div key={item.label} className="flex items-start space-x-2">
-              <item.icon className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
-                <p className="text-sm text-foreground">{item.value}</p>
+            <Badge variant="secondary" className="mb-2 text-xs uppercase tracking-wider">{car.category}</Badge>
+            <h1 className="mb-1 text-3xl font-bold text-foreground lg:text-4xl">{car.name}</h1>
+            <div className="mb-4 flex items-center">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-5 w-5 ${
+                      i < Math.floor(car.rating)
+                        ? "fill-primary text-primary"
+                        : i < car.rating
+                        ? "fill-primary/50 text-primary" 
+                        : "fill-muted-foreground/20 text-muted-foreground/50"
+                    }`}
+                  />
+                ))}
+                <span className="ml-2 text-sm text-muted-foreground">
+                  {car.rating.toFixed(1)} ({car.reviewCount} reviews)
+                </span>
               </div>
             </div>
-          ))}
-        </div>
-
-        <div className="space-y-3">
-          <Button size="lg" className="w-full" onClick={handleAddToCart}>
-            Add to Garage
-          </Button>
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" size="lg">Schedule Test Drive</Button>
-            <Button variant="outline" size="lg">Get Financing</Button>
+            <div>
+              <p className="text-3xl font-bold text-primary lg:text-4xl">${car.price.toLocaleString()}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Est. ${Math.round(car.price / 60).toLocaleString()}/mo with financing
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-2 rounded-lg border border-border/50 p-4 text-sm bg-muted/20">
-          <div className="flex items-center space-x-2 text-muted-foreground">
-            <Truck className="h-5 w-5 text-primary/80" />
-            <span>Free delivery within 50 miles</span>
+          <div className="space-y-3 leading-relaxed text-foreground/90">
+            <p>{car.description}</p>
           </div>
-          <div className="flex items-center space-x-2 text-muted-foreground">
-            <ShieldCheck className="h-5 w-5 text-primary/80" />
-            <span>3-year/36,000-mile warranty included</span>
+
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg border border-border/50 bg-muted/20 p-4">
+            {[
+              { icon: Calendar, label: "Year", value: car.year.toString() },
+              { icon: Gauge, label: "Mileage", value: `${car.mileage.toLocaleString()} miles` },
+              { icon: Fuel, label: "Fuel Type", value: car.fuelType },
+              { icon: Car, label: "Transmission", value: car.transmission },
+              { icon: MapPin, label: "Location", value: car.location },
+              { icon: ShieldCheck, label: "VIN", value: car.vin }, 
+            ].map(item => (
+              <div key={item.label} className="flex items-start space-x-2">
+                <item.icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
+                  <p className="text-sm text-foreground">{item.value}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <Button size="lg" className="w-full" onClick={handleAddToCart}>
+              Add to Garage
+            </Button>
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" size="lg">Schedule Test Drive</Button>
+              <Button variant="outline" size="lg">Get Financing</Button>
+            </div>
+          </div>
+
+          <div className="space-y-2 rounded-lg border border-border/50 bg-muted/20 p-4 text-sm">
+            <div className="flex items-center space-x-2 text-muted-foreground">
+              <Truck className="h-5 w-5 text-primary/80" />
+              <span>Free delivery within 50 miles</span>
+            </div>
+            <div className="flex items-center space-x-2 text-muted-foreground">
+              <ShieldCheck className="h-5 w-5 text-primary/80" />
+              <span>3-year/36,000-mile warranty included</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Car Details Tabs */}
-    <div className="mt-12 lg:mt-16">
-      <Tabs defaultValue="features" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
-          <TabsTrigger value="features">Features</TabsTrigger>
-          <TabsTrigger value="specifications">Specifications</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews ({car.reviews.length})</TabsTrigger>
-        </TabsList>
-        <TabsContent value="features" className="mt-6 prose dark:prose-invert max-w-none prose-sm sm:prose-base">
-          <h3 className="text-xl font-semibold text-foreground mb-4">Key Features</h3>
-          <ul className="list-disc space-y-2 pl-5 text-foreground/90">
-            {car.features.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            ))}
-          </ul>
-        </TabsContent>
-        <TabsContent value="specifications" className="mt-6">
-          <h3 className="text-xl font-semibold text-foreground mb-4">Technical Specifications</h3>
-          <div className="rounded-md border border-border/50 overflow-hidden">
-            {Object.entries(car.specifications).map(([key, value]) => (
-              <div key={key} className="flex flex-col sm:flex-row p-3 even:bg-muted/30 odd:bg-transparent text-sm">
-                <span className="font-medium text-muted-foreground sm:w-1/3 lg:w-1/4 mb-1 sm:mb-0">{key}</span>
-                <span className="text-foreground sm:w-2/3 lg:w-3/4">{value}</span>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-        <TabsContent value="reviews" className="mt-6">
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <h3 className="text-xl font-semibold text-foreground">Customer Reviews</h3>
-              <Button variant="outline">Write a Review</Button>
+      <div className="mt-12 lg:mt-16">
+        <Tabs defaultValue="features" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 md:inline-flex md:w-auto">
+            <TabsTrigger value="features">Features</TabsTrigger>
+            <TabsTrigger value="specifications">Specifications</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews ({car.reviews.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="features" className="prose prose-sm max-w-none dark:prose-invert sm:prose-base mt-6">
+            <h3 className="mb-4 text-xl font-semibold text-foreground">Key Features</h3>
+            <ul className="list-disc space-y-2 pl-5 text-foreground/90">
+              {car.features.map((feature, index) => (
+                <li key={index}>{feature}</li>
+              ))}
+            </ul>
+          </TabsContent>
+          <TabsContent value="specifications" className="mt-6">
+            <h3 className="mb-4 text-xl font-semibold text-foreground">Technical Specifications</h3>
+            <div className="overflow-hidden rounded-md border border-border/50">
+              {Object.entries(car.specifications).map(([key, value]) => (
+                <div key={key} className="flex flex-col p-3 text-sm even:bg-muted/30 odd:bg-transparent sm:flex-row">
+                  <span className="mb-1 font-medium text-muted-foreground sm:mb-0 sm:w-1/3 lg:w-1/4">{key}</span>
+                  <span className="text-foreground sm:w-2/3 lg:w-3/4">{value}</span>
+                </div>
+              ))}
             </div>
+          </TabsContent>
+          <TabsContent value="reviews" className="mt-6">
             <div className="space-y-6">
-              {car.reviews.length > 0 ? car.reviews.map((review) => (
-                <Card key={review.id} className="bg-muted/30">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={review.avatar || "/placeholder.svg?text=User"} alt={review.author} />
-                          <AvatarFallback>{review.author.substring(0,2).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <CardTitle className="text-base">{review.author}</CardTitle>
-                          <CardDescription className="text-xs">{review.date}</CardDescription>
+              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-xl font-semibold text-foreground">Customer Reviews</h3>
+                <Button variant="outline">Write a Review</Button>
+              </div>
+              <div className="space-y-6">
+                {car.reviews.length > 0 ? car.reviews.map((review) => (
+                  <Card key={review.id} className="bg-muted/30">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-10 w-10">
+                            <img src={review.avatar} alt={review.author} className="h-full w-full rounded-full object-cover" />
+                            <AvatarFallback>{review.author.substring(0,2).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <CardTitle className="text-base">{review.author}</CardTitle>
+                            <CardDescription className="text-xs">{review.date}</CardDescription>
+                          </div>
+                        </div>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`h-4 w-4 ${i < review.rating ? "fill-primary text-primary" : "fill-muted-foreground/20 text-muted-foreground/50"}`} />
+                          ))}
                         </div>
                       </div>
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`h-4 w-4 ${i < review.rating ? "fill-primary text-primary" : "fill-muted-foreground/20 text-muted-foreground/50"}`} />
-                        ))}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="text-sm text-foreground/90 leading-relaxed pb-3">
-                    <p>{review.content}</p>
-                  </CardContent>
-                  {/* Optional: Add like/reply buttons here if needed */}
-                </Card>
-              )) : (
-                <p className="text-muted-foreground">No reviews yet for this vehicle.</p>
-              )}
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
-
-    {/* Related Cars */}
-    <div className="mt-12 lg:mt-16">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">Similar Vehicles</h2>
-        <Button variant="ghost" asChild className="text-sm font-medium text-primary hover:text-primary/80">
-          <Link href="/products">
-            View all
-            <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {car.relatedCars.map((relatedCar) => (
-          <Card key={relatedCar.id} className="overflow-hidden group hover:shadow-xl transition-shadow">
-            <Link href={`/products/${relatedCar.id}`} className="block">
-              <div className="relative aspect-video overflow-hidden bg-muted/30">
-                <Image
-                  src={relatedCar.image || "/placeholder.svg"}
-                  alt={relatedCar.name}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                    </CardHeader>
+                    <CardContent className="pb-3 text-sm leading-relaxed text-foreground/90">
+                      <p>{review.content}</p>
+                    </CardContent>
+                  </Card>
+                )) : (
+                  <p className="text-muted-foreground">No reviews yet for this vehicle.</p>
+                )}
               </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <div className="mt-12 lg:mt-16">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-foreground">Similar Vehicles</h2>
+          <Button variant="ghost" asChild className="text-sm font-medium text-primary hover:text-primary/80">
+            <Link href="/products">
+              View all
+              <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
-            <CardContent className="p-4 space-y-1">
-              <Link href={`/products/${relatedCar.id}`} className="block">
-                <h3 className="font-medium text-foreground group-hover:text-primary transition-colors truncate">{relatedCar.name}</h3>
-              </Link>
-               {relatedCar.category && <p className="text-xs text-muted-foreground">{relatedCar.category}</p>}
-              <p className="text-lg font-semibold text-primary">${relatedCar.price.toLocaleString()}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-2 w-full"
-                onClick={() => {
-                  addItem({ id: relatedCar.id, name: relatedCar.name, price: relatedCar.price, image: relatedCar.image, quantity: 1 });
-                }}
-              >
-                Add to Garage
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {car.relatedCars.map((relatedCar) => (
+            <Card key={relatedCar.id} className="group overflow-hidden transition-shadow hover:shadow-xl">
+              <a href={`/products/${relatedCar.id}`} className="block">
+                <div className="relative aspect-video overflow-hidden bg-muted/30">
+                  <img
+                    src={relatedCar.image || "/placeholder.svg"}
+                    alt={relatedCar.name}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+              </a>
+              <CardContent className="space-y-1 p-4">
+                <a href={`/products/${relatedCar.id}`} className="block">
+                  <h3 className="truncate font-medium text-foreground transition-colors group-hover:text-primary">{relatedCar.name}</h3>
+                </a>
+                  {relatedCar.category && <p className="text-xs text-muted-foreground">{relatedCar.category}</p>}
+                <p className="text-lg font-semibold text-primary">${relatedCar.price.toLocaleString()}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 w-full"
+                  onClick={() => {
+                    addItem({ id: relatedCar.id.toString(), name: relatedCar.name, price: relatedCar.price, image: relatedCar.image, quantity: 1 });
+                  }}
+                >
+                  Add to Garage
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
   )
 }

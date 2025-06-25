@@ -1,41 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Image from "next/image"; // Impor Image jika diperlukan untuk preview gambar
-import {
-  Calendar,
-  Edit,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Trash,
-  Bold, // Icon untuk toolbar
-  Italic, // Icon untuk toolbar
-  Underline, // Icon untuk toolbar
-  Link as LinkIcon, // Icon untuk toolbar
-  List as ListIcon, // Icon untuk toolbar
-  Image as ImageIcon, // Icon untuk toolbar
-  Heading2, // Icon untuk toolbar
-  AlignCenter, // Icon untuk toolbar
-  AlignLeft, // Icon untuk toolbar
-  AlignRight, // Icon untuk toolbar
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -44,17 +9,52 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator" // Impor Separator
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator"; // Impor Separator
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlignCenter, // Icon untuk toolbar
+  AlignLeft, // Icon untuk toolbar
+  AlignRight,
+  Bold,
+  Calendar,
+  Edit, // Icon untuk toolbar
+  Heading2, // Icon untuk toolbar
+  Image as ImageIcon, // Icon untuk toolbar
+  Italic, // Icon untuk toolbar
+  Link as LinkIcon, // Icon untuk toolbar
+  List as ListIcon,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Trash, // Icon untuk toolbar
+  Underline, // Icon untuk toolbar
+} from "lucide-react";
+import Image from "next/image"; // Impor Image jika diperlukan untuk preview gambar
+import { useState } from "react";
 
 // Definisikan tipe untuk artikel agar lebih aman
 interface Article {
