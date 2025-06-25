@@ -30,7 +30,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { useEffect, useState } from "react"; // Import useEffect and useState
+import { useEffect, useState } from "react";
 
 // Define the article type for better type safety
 interface Article {
@@ -95,7 +95,7 @@ const getArticleById = (id: string): Article | null => {
       author: {
         name: "Dr. Emily Chen",
         role: "AI Research Director",
-        avatar: "/placeholder.svg?height=100&width=100&text=EC",
+        avatar: "https://placehold.co/100x100/EFEFEF/333333?text=EC",
       },
       date: "April 15, 2023",
       readTime: "8 min read",
@@ -106,12 +106,13 @@ const getArticleById = (id: string): Article | null => {
         "Digital Transformation",
         "Future of Work",
       ],
-      featuredImage: "/placeholder.svg?height=800&width=1200&text=AI+in+Business",
+      featuredImage:
+        "https://placehold.co/1200x600/cccccc/333333?text=AI+in+Business",
       comments: [
         {
           id: 1,
           author: "Michael Roberts",
-          avatar: "/placeholder.svg?height=50&width=50&text=MR",
+          avatar: "https://placehold.co/50x50/EFEFEF/333333?text=MR",
           date: "April 16, 2023",
           content:
             "Great article! I especially appreciated the section on ethical considerations.",
@@ -120,7 +121,7 @@ const getArticleById = (id: string): Article | null => {
         {
           id: 2,
           author: "Sarah Johnson",
-          avatar: "/placeholder.svg?height=50&width=50&text=SJ",
+          avatar: "https://placehold.co/50x50/EFEFEF/333333?text=SJ",
           date: "April 17, 2023",
           content:
             "This was really insightful. The point about data infrastructure is spot on.",
@@ -131,63 +132,18 @@ const getArticleById = (id: string): Article | null => {
         {
           id: 2,
           title: "Implementing Ethical AI Frameworks",
-          excerpt:
-            "A practical guide to developing ethical AI guidelines.",
+          excerpt: "A practical guide to developing ethical AI guidelines.",
           category: "Technology",
           date: "April 5, 2023",
-          image: "/placeholder.svg?height=400&width=600&text=Ethical+AI",
+          image: "https://placehold.co/600x400/cccccc/333333?text=Ethical+AI",
         },
         {
           id: 3,
           title: "Machine Learning in Supply Chains",
-          excerpt:
-            "Explore how predictive analytics optimize supply chains.",
+          excerpt: "Explore how predictive analytics optimize supply chains.",
           category: "Business",
           date: "March 28, 2023",
-          image:
-            "/placeholder.svg?height=400&width=600&text=Supply+Chain+AI",
-        },
-      ],
-    },
-    "2": { // Example for another article ID
-      id: 2,
-      title: "Sustainable Business Practices: Beyond the Buzzword",
-      excerpt:
-        "An in-depth look at how companies are implementing genuine sustainability initiatives and the business benefits they're seeing.",
-      content: `
-        <h2>Introduction</h2>
-        <p>Sustainability has evolved from a marketing buzzword to a business imperative. As climate change concerns intensify and consumers increasingly demand environmental responsibility, companies across industries are recognizing that sustainable practices aren't just good for the planet—they're good for business.</p>
-        <p>In this article, we'll explore how forward-thinking companies are implementing meaningful sustainability initiatives, the tangible benefits they're experiencing, and practical steps businesses can take to move beyond greenwashing toward authentic environmental stewardship.</p>
-        {/* ... more content ... */}
-      `,
-      author: {
-        name: "James Wilson",
-        role: "Sustainability Consultant",
-        avatar: "/placeholder.svg?height=100&width=100&text=JW",
-      },
-      date: "March 22, 2023",
-      readTime: "10 min read",
-      category: "Business",
-      tags: ["Sustainability", "CSR", "Green Economy"],
-      featuredImage: "/placeholder.svg?height=800&width=1200&text=Sustainable+Business",
-      comments: [
-        {
-          id: 1,
-          author: "Rebecca Torres",
-          avatar: "/placeholder.svg?height=50&width=50&text=RT",
-          date: "March 23, 2023",
-          content: "This is a much-needed perspective on authentic sustainability.",
-          likes: 15,
-        },
-      ],
-      relatedArticles: [
-        {
-          id: 1,
-          title: "The ROI of Sustainability",
-          excerpt: "Measuring the financial impact of green initiatives.",
-          category: "Business",
-          date: "March 10, 2023",
-          image: "/placeholder.svg?height=400&width=600&text=Sustainability+ROI",
+          image: "https://placehold.co/600x400/cccccc/333333?text=Supply+Chain+AI",
         },
       ],
     },
@@ -195,64 +151,37 @@ const getArticleById = (id: string): Article | null => {
   return articles[id] || null;
 };
 
-interface ArticleDetailPageProps {
-  params: {
-    id: string;
-  };
-}
 
-export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
-  const [article, setArticle] = useState<Article | null>(null);
+export default function ArticleDetailPage({ params }: { params: { id: string } }) {
+  const article = getArticleById(params.id);
   const [currentUrl, setCurrentUrl] = useState("");
 
+  // This effect runs only on the client to get the current window URL
   useEffect(() => {
-    const fetchedArticle = getArticleById(params.id);
-    if (!fetchedArticle) {
-      notFound();
-    } else {
-      setArticle(fetchedArticle);
-    }
-    // Ensure window dependent code runs only on client
     if (typeof window !== "undefined") {
       setCurrentUrl(window.location.href);
     }
-  }, [params.id]);
+  }, []);
 
+  // If the article is not found, call notFound() to render the not-found page.
+  // This must be done before the component returns, and not inside an effect.
   if (!article) {
-    // This will be handled by notFound in useEffect, or you can return a loading state
-    return <div>Loading article...</div>; 
+    notFound();
   }
-  
+
   const handleCopyToClipboard = () => {
     if (navigator.clipboard && currentUrl) {
-      navigator.clipboard.writeText(currentUrl)
+      navigator.clipboard
+        .writeText(currentUrl)
         .then(() => {
-          // Optional: Show a success message, e.g., using a toast
           alert("Link copied to clipboard!");
         })
-        .catch(err => {
-          console.error('Failed to copy link: ', err);
+        .catch((err) => {
+          console.error("Failed to copy link: ", err);
           alert("Failed to copy link.");
         });
-    } else if (currentUrl) {
-      // Fallback for older browsers or non-secure contexts
-      try {
-        const textArea = document.createElement("textarea");
-        textArea.value = currentUrl;
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        alert("Link copied to clipboard!");
-      } catch (err) {
-        console.error('Fallback: Oops, unable to copy', err);
-        alert("Failed to copy link.");
-      }
     }
   };
-
-
   return (
     <div className="container mx-auto px-4 py-8 lg:py-12">
       <div className="mb-8">
@@ -270,16 +199,23 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
       <article className="mx-auto max-w-3xl">
         {/* Article Header */}
         <header className="mb-8">
-          <Badge variant="secondary" className="mb-4 text-sm">{article.category}</Badge>
+          <Badge variant="secondary" className="mb-4 text-sm">
+            {article.category}
+          </Badge>
           <h1 className="mb-4 text-3xl font-extrabold leading-tight text-foreground md:text-4xl lg:text-5xl">
             {article.title}
           </h1>
-          <p className="mb-6 text-lg text-muted-foreground md:text-xl">{article.excerpt}</p>
+          <p className="mb-6 text-lg text-muted-foreground md:text-xl">
+            {article.excerpt}
+          </p>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-muted-foreground">
             <div className="flex items-center">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={article.author.avatar || "/placeholder.svg"} alt={article.author.name} />
+                <AvatarImage
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                />
                 <AvatarFallback>
                   {article.author.name
                     .split(" ")
@@ -288,8 +224,12 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="ml-3">
-                <p className="text-sm font-medium text-foreground">{article.author.name}</p>
-                <p className="text-xs text-muted-foreground">{article.author.role}</p>
+                <p className="text-sm font-medium text-foreground">
+                  {article.author.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {article.author.role}
+                </p>
               </div>
             </div>
             <div className="flex items-center text-sm">
@@ -304,13 +244,12 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
         </header>
 
         {/* Featured Image */}
-        <div className="mb-8 overflow-hidden rounded-lg shadow-lg">
+        <div className="relative mb-8 aspect-[16/9] w-full overflow-hidden rounded-lg shadow-lg">
           <Image
-            src={article.featuredImage || "/placeholder.svg"}
+            src={article.featuredImage}
             alt={article.title}
-            width={1200}
-            height={600}
-            className="h-auto w-full object-cover"
+            fill
+            className="object-cover"
             priority
           />
         </div>
@@ -324,7 +263,7 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
         {/* Tags */}
         {article.tags && article.tags.length > 0 && (
           <div className="my-10">
-             <h3 className="mb-3 text-lg font-semibold text-foreground">Tags</h3>
+            <h3 className="mb-3 text-lg font-semibold text-foreground">Tags</h3>
             <div className="flex flex-wrap gap-2">
               {article.tags.map((tag) => (
                 <Badge key={tag} variant="outline" className="px-3 py-1 text-sm">
@@ -335,39 +274,65 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
             </div>
           </div>
         )}
-        
+
         <Separator className="my-10" />
 
         {/* Share and Actions */}
         <div className="my-10 flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4 shadow">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem asChild>
-                  <Link href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                    <Facebook className="mr-2 h-4 w-4" /> Facebook
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(article.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                    <Twitter className="mr-2 h-4 w-4" /> Twitter
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(currentUrl)}&title=${encodeURIComponent(article.title)}&summary=${encodeURIComponent(article.excerpt)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                    <Linkedin className="mr-2 h-4 w-4" /> LinkedIn
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleCopyToClipboard} className="flex items-center">
-                  <Copy className="mr-2 h-4 w-4" /> Copy Link
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem asChild>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    currentUrl
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center"
+                >
+                  <Facebook className="mr-2 h-4 w-4" /> Facebook
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                    currentUrl
+                  )}&text=${encodeURIComponent(article.title)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center"
+                >
+                  <Twitter className="mr-2 h-4 w-4" /> Twitter
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
+                    currentUrl
+                  )}&title=${encodeURIComponent(
+                    article.title
+                  )}&summary=${encodeURIComponent(article.excerpt)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center"
+                >
+                  <Linkedin className="mr-2 h-4 w-4" /> LinkedIn
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleCopyToClipboard}
+                className="flex cursor-pointer items-center"
+              >
+                <Copy className="mr-2 h-4 w-4" /> Copy Link
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline" size="sm">
             <Bookmark className="mr-2 h-4 w-4" />
             Save for later
@@ -378,7 +343,10 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
         <div className="my-12 rounded-lg border bg-muted p-6 shadow dark:bg-card">
           <div className="flex flex-col items-start gap-4 sm:flex-row">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={article.author.avatar || "/placeholder.svg"} alt={article.author.name} />
+              <AvatarImage
+                src={article.author.avatar}
+                alt={article.author.name}
+              />
               <AvatarFallback className="text-2xl">
                 {article.author.name
                   .split(" ")
@@ -387,23 +355,35 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <p className="text-xs font-medium uppercase tracking-wider text-primary">About the Author</p>
-              <h3 className="mt-1 text-xl font-bold text-foreground">{article.author.name}</h3>
-              <p className="mb-2 text-sm text-muted-foreground">{article.author.role}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-primary">
+                About the Author
+              </p>
+              <h3 className="mt-1 text-xl font-bold text-foreground">
+                {article.author.name}
+              </h3>
+              <p className="mb-2 text-sm text-muted-foreground">
+                {article.author.role}
+              </p>
               <p className="text-sm text-muted-foreground">
-                {article.author.name} is an expert in {article.category.toLowerCase()} with over 15 years of experience
-                in the field. They have written extensively on topics related to {article.tags[0]?.toLowerCase() || 'their field'} and {article.tags[1]?.toLowerCase() || 'related subjects'}, 
-                and are a frequent speaker at industry conferences.
+                {article.author.name} is an expert in{" "}
+                {article.category.toLowerCase()} with over 15 years of
+                experience in the field. They have written extensively on
+                topics related to{" "}
+                {article.tags[0]?.toLowerCase() || "their field"} and{" "}
+                {article.tags[1]?.toLowerCase() || "related subjects"}, and are a
+                frequent speaker at industry conferences.
               </p>
             </div>
           </div>
         </div>
-        
+
         <Separator className="my-12" />
 
         {/* Comments */}
         <section className="my-12">
-          <h3 className="mb-6 text-2xl font-bold text-foreground">Comments ({article.comments.length})</h3>
+          <h3 className="mb-6 text-2xl font-bold text-foreground">
+            Comments ({article.comments.length})
+          </h3>
           <div className="space-y-6">
             {article.comments.map((comment) => (
               <Card key={comment.id} className="shadow">
@@ -411,7 +391,10 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
                   <div className="mb-3 flex items-start justify-between">
                     <div className="flex items-center">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={comment.avatar || "/placeholder.svg"} alt={comment.author} />
+                        <AvatarImage
+                          src={comment.avatar}
+                          alt={comment.author}
+                        />
                         <AvatarFallback>
                           {comment.author
                             .split(" ")
@@ -420,18 +403,32 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
                         </AvatarFallback>
                       </Avatar>
                       <div className="ml-3">
-                        <p className="font-semibold text-foreground">{comment.author}</p>
-                        <p className="text-xs text-muted-foreground">{comment.date}</p>
+                        <p className="font-semibold text-foreground">
+                          {comment.author}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {comment.date}
+                        </p>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{comment.content}</p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {comment.content}
+                  </p>
                   <div className="mt-4 flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 text-muted-foreground hover:text-primary">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 gap-1.5 px-2.5 text-muted-foreground hover:text-primary"
+                    >
                       <ThumbsUp className="h-4 w-4" />
                       <span>{comment.likes}</span>
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 text-muted-foreground hover:text-primary">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 gap-1.5 px-2.5 text-muted-foreground hover:text-primary"
+                    >
                       <MessageSquare className="h-4 w-4" />
                       <span>Reply</span>
                     </Button>
@@ -444,7 +441,9 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
           {/* Comment Form */}
           <Card className="mt-10 shadow">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold text-foreground">Leave a Comment</CardTitle>
+              <CardTitle className="text-xl font-semibold text-foreground">
+                Leave a Comment
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <form className="space-y-4">
@@ -490,22 +489,29 @@ export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
               <Link href={`/blog/${relatedArticle.id}`} className="block">
                 <div className="relative h-52 w-full overflow-hidden">
                   <Image
-                    src={relatedArticle.image || "/placeholder.svg"}
+                    src={relatedArticle.image}
                     alt={relatedArticle.title}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
               </Link>
               <CardContent className="p-5">
-                <Badge variant="secondary" className="mb-2 text-xs">{relatedArticle.category}</Badge>
+                <Badge variant="secondary" className="mb-2 text-xs">
+                  {relatedArticle.category}
+                </Badge>
                 <h3 className="mb-2 text-lg font-semibold leading-snug text-foreground group-hover:text-primary">
                   <Link href={`/blog/${relatedArticle.id}`}>
                     {relatedArticle.title}
                   </Link>
                 </h3>
-                <p className="mb-3 text-xs text-muted-foreground">{relatedArticle.date}</p>
-                <p className="mb-4 line-clamp-3 text-sm text-muted-foreground">{relatedArticle.excerpt}</p>
+                <p className="mb-3 text-xs text-muted-foreground">
+                  {relatedArticle.date}
+                </p>
+                <p className="mb-4 line-clamp-3 text-sm text-muted-foreground">
+                  {relatedArticle.excerpt}
+                </p>
                 <Button variant="outline" asChild className="w-full">
                   <Link href={`/blog/${relatedArticle.id}`}>Read Article</Link>
                 </Button>

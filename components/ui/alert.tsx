@@ -1,7 +1,7 @@
-import { cva, type VariantProps } from "class-variance-authority"
 import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
-import { cn } from "@/lib/utils"; // Assuming you have a cn utility
+import { cn } from "@/lib/utils"
 
 const alertVariants = cva(
   "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
@@ -11,12 +11,6 @@ const alertVariants = cva(
         default: "bg-background text-foreground",
         destructive:
           "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
-        warning:
-          "border-yellow-500/50 text-yellow-700 dark:border-yellow-600 [&>svg]:text-yellow-700 dark:[&>svg]:text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30",
-        info:
-          "border-blue-500/50 text-blue-700 dark:border-blue-600 [&>svg]:text-blue-700 dark:[&>svg]:text-blue-500 bg-blue-50 dark:bg-blue-900/30",
-        success:
-          "border-green-500/50 text-green-700 dark:border-green-600 [&>svg]:text-green-700 dark:[&>svg]:text-green-500 bg-green-50 dark:bg-green-900/30",
       },
     },
     defaultVariants: {
@@ -42,8 +36,7 @@ const AlertTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
-  // Changed h5 to div for more semantic flexibility, or use h5 if it's always a heading
-  <div
+  <h5
     ref={ref}
     className={cn("mb-1 font-medium leading-none tracking-tight", className)}
     {...props}
@@ -63,5 +56,4 @@ const AlertDescription = React.forwardRef<
 ))
 AlertDescription.displayName = "AlertDescription"
 
-export { Alert, AlertDescription, AlertTitle }
-
+export { Alert, AlertTitle, AlertDescription }

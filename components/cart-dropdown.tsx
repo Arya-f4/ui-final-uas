@@ -1,150 +1,162 @@
 "use client"
 
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { Minus, Plus, ShoppingCart, X } from "lucide-react";
-import Link from "next/link";
-import { createContext, useContext, useState } from "react";
-// --- Cart Logic (previously in cart-provider.tsx) ---
-
-// Define the shape of a single cart item
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-}
-
-// Define the shape of the cart context
-interface CartContextType {
-  items: CartItem[];
-  itemCount: number;
-  subtotal: number;
-  addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
-}
-
-// Create the context with a default undefined value
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-// Custom hook to use the CartContext
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart must be used within a CartProvider");
-  }
-  return context;
-};
-
-// --- Main Cart Dropdown Component ---
+import { useCart } from "@/components/cart-provider"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { useMobile } from "@/hooks/use-mobile"
+import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
 
 export function CartDropdown() {
-  // Mock cart data and functions since the provider is not available here.
-  // In a real app, this data would come from the `useCart()` hook.
-  const [items, setItems] = useState<CartItem[]>([
-      { id: '1', name: 'Vintage Car', price: 25000, quantity: 1, image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80' },
-      { id: '2', name: 'Sleek Sports Car', price: 75000, quantity: 1, image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80' },
-  ]);
+  const { items, removeItem, updateItemQuantity, clearCart, totalItems, totalPrice } = useCart()
+  const isMobile = useMobile()
 
-  const updateQuantity = (id: string, quantity: number) => {
-    setItems(currentItems =>
-      currentItems.map(item =>
-        item.id === id ? { ...item, quantity: Math.max(0, quantity) } : item
-      ).filter(item => item.quantity > 0)
-    );
-  };
+  const CartContent = () => (
+    <div className="flex h-full flex-col">
+      {items.length > 0 ? (
+        <>
+          <ScrollArea className="flex-grow">
+            <div className="pr-4">
+              {items.map(item => (
+                <div key={item.id} className="flex items-start gap-4 py-4">
+                  <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                    <Image
+                      src={item.image || "https://placehold.co/80x80/eee/ccc?text=Image"}
+                      alt={item.name}
+                      fill
+                      sizes="80px"
+                      className="h-full w-full object-cover object-center"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between text-base font-medium text-gray-900 dark:text-gray-50">
+                      <h3>
+                        <Link href={`/products/${item.id}`}>{item.name}</Link>
+                      </h3>
+                      <p className="ml-4">${item.price.toLocaleString()}</p>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => updateItemQuantity(item.id, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-6 text-center">{item.quantity}</span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
+            <div className="flex justify-between text-base font-medium text-gray-900 dark:text-gray-50">
+              <p>Subtotal</p>
+              <p>${totalPrice.toLocaleString()}</p>
+            </div>
+            <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
+            <div className="mt-6">
+              <Button asChild className="w-full">
+                <Link href="/checkout">Checkout</Link>
+              </Button>
+            </div>
+            <div className="mt-4 flex justify-center text-center text-sm text-gray-500">
+              <p>
+                or{' '}
+                <Button variant="link" className="p-0" onClick={clearCart}>
+                  Clear Cart
+                </Button>
+              </p>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-grow flex-col items-center justify-center gap-4 p-4 text-center">
+          <ShoppingCart className="h-16 w-16 text-gray-400" />
+          <h3 className="text-lg font-semibold">Your Garage is Empty</h3>
+          <p className="text-sm text-gray-500">Add some cars to get started.</p>
+          <Button asChild>
+            <Link href="/products">Browse Inventory</Link>
+          </Button>
+        </div>
+      )}
+    </div>
+  )
 
-  const removeItem = (id: string) => {
-    setItems(currentItems => currentItems.filter(item => item.id !== id));
-  };
-  
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  const [open, setOpen] = useState(false)
+  if (isMobile) {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="relative">
+            <ShoppingCart className="h-6 w-6" />
+            {totalItems > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                {totalItems}
+              </span>
+            )}
+            <span className="sr-only">Open cart</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent className="flex w-full flex-col sm:max-w-lg">
+          <SheetHeader>
+            <SheetTitle>Your Garage</SheetTitle>
+          </SheetHeader>
+          <CartContent />
+        </SheetContent>
+      </Sheet>
+    )
+  }
 
   return (
-    <DropdownMenu.Root open={open} onOpenChange={setOpen}>
-      <DropdownMenu.Trigger asChild>
-        <button className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "relative")}>
-          <ShoppingCart className="h-5 w-5" />
-          {itemCount > 0 && (
-            <div className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary p-0 text-xs text-primary-foreground">
-                {itemCount}
-            </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon" className="relative">
+          <ShoppingCart className="h-6 w-6" />
+          {totalItems > 0 && (
+            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+              {totalItems}
+            </span>
           )}
-          <span className="sr-only">Shopping cart</span>
-        </button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="end" className="w-80 z-999 rounded-md border border-slate-200 bg-white p-4 text-slate-950 shadow-md dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50">
-        <div>
-          <h3 className="mb-4 font-medium">Your Garage ({itemCount})</h3>
-          {items.length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="mb-4 text-slate-500 dark:text-slate-400">Your garage is empty</p>
-               <Link href="/products" onClick={() => setOpen(false)} className={cn(buttonVariants({ variant: "outline" }))}>
-                Browse Cars
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div className="max-h-[300px] space-y-4 overflow-auto">
-                {items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
-                    <div className="relative h-16 w-16 overflow-hidden rounded-md border">
-                      <img src={item.image || "/placeholder.svg"} alt={item.name} className="absolute h-full w-full object-cover" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium">{item.name}</h4>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">${item.price.toLocaleString()}</p>
-                      <div className="mt-1 flex items-center gap-2">
-                         <button
-                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                           className={cn(buttonVariants({ variant: "outline", size: "icon" }), "h-6 w-6")}
-                         >
-                          <Minus className="h-3 w-3" />
-                          <span className="sr-only">Decrease quantity</span>
-                        </button>
-                        <span className="w-4 text-center text-sm">{item.quantity}</span>
-                        <button
-                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                           className={cn(buttonVariants({ variant: "outline", size: "icon" }), "h-6 w-6")}
-                         >
-                          <Plus className="h-3 w-3" />
-                          <span className="sr-only">Increase quantity</span>
-                        </button>
-                      </div>
-                    </div>
-                     <button
-                       onClick={() => removeItem(item.id)}
-                       className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "h-6 w-6")}
-                     >
-                      <X className="h-4 w-4" />
-                      <span className="sr-only">Remove</span>
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 space-y-4">
-                <div className="flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-800">
-                  <span className="font-medium">Subtotal</span>
-                  <span className="font-medium">${subtotal.toLocaleString()}</span>
-                </div>
-                <a href="/checkout" onClick={() => setOpen(false)} className={cn(buttonVariants(), "w-full")}>
-                  Proceed to Checkout
-                </a>
-                <Link href="/products" onClick={() => setOpen(false)} className={cn(buttonVariants({ variant: "outline" }), "w-full")}>
-                  Continue Shopping
-                </Link>
-              </div>
-            </>
-          )}
+           <span className="sr-only">Open cart</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-96 p-0" align="end">
+        <DropdownMenuLabel className="px-4 py-3 text-lg font-semibold">Your Garage</DropdownMenuLabel>
+        <Separator />
+        <div className="max-h-[60vh]">
+          <CartContent />
         </div>
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
