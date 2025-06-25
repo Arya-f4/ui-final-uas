@@ -1,12 +1,32 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import { Edit, MoreHorizontal, Plus, Search, Trash, Car } from 'lucide-react'
+import {
+  File,
+  MoreHorizontal,
+  PlusCircle
+} from "lucide-react"
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -16,413 +36,260 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
 
-export default function ProductsPage() {
-  const [isAddProductOpen, setIsAddProductOpen] = useState(false)
-  const [isEditProductOpen, setIsEditProductOpen] = useState(false)
-  const [currentCar, setCurrentCar] = useState(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all-status")
-
-  // Mock car data
-  const cars = [
+const products = [
     {
-      id: 1,
-      name: "2023 Mercedes-Benz S-Class",
-      price: 110000,
-      category: "Luxury Sedan",
-      status: "In Stock",
-      year: 2023,
-      image: "/placeholder.svg?height=100&width=100&text=Mercedes",
-      description: "Luxury sedan with premium features, leather interior, and advanced technology package."
+        id: "prod_1",
+        name: "1967 Ford Mustang",
+        status: "Aktif",
+        price: "65000.00",
+        stock: 2,
+        image: "https://placehold.co/80x80/333/FFF?text=Mustang",
+        description: "A classic American muscle car."
     },
     {
-      id: 2,
-      name: "2023 BMW X5",
-      price: 65000,
-      category: "Luxury SUV",
-      status: "In Stock",
-      year: 2023,
-      image: "/placeholder.svg?height=100&width=100&text=BMW",
-      description: "Versatile luxury SUV with spacious interior, all-wheel drive, and premium sound system."
+        id: "prod_2",
+        name: "1957 Chevrolet Bel Air",
+        status: "Aktif",
+        price: "75000.00",
+        stock: 1,
+        image: "https://placehold.co/80x80/333/FFF?text=Bel+Air",
+        description: "An iconic 50s automobile."
     },
     {
-      id: 3,
-      name: "2023 Tesla Model 3",
-      price: 45000,
-      category: "Electric",
-      status: "In Stock",
-      year: 2023,
-      image: "/placeholder.svg?height=100&width=100&text=Tesla",
-      description: "All-electric sedan with long range battery, autopilot capabilities, and minimalist interior."
+        id: "prod_3",
+        name: "1981 DeLorean DMC-12",
+        status: "Draft",
+        price: "105000.00",
+        stock: 0,
+        image: "https://placehold.co/80x80/333/FFF?text=DeLorean",
+        description: "Famous for its role in Back to the Future."
+    },
+     {
+        id: "prod_4",
+        name: "1969 Dodge Charger",
+        status: "Aktif",
+        price: "85000.00",
+        stock: 3,
+        image: "https://placehold.co/80x80/333/FFF?text=Charger",
+        description: "A powerful and stylish muscle car."
     },
     {
-      id: 4,
-      name: "2023 Porsche 911",
-      price: 120000,
-      category: "Sports Car",
-      status: "On Order",
-      year: 2023,
-      image: "/placeholder.svg?height=100&width=100&text=Porsche",
-      description: "Iconic sports car with rear-engine layout, exceptional handling, and race-inspired performance."
-    },
-    {
-      id: 5,
-      name: "2022 Audi Q7",
-      price: 58000,
-      category: "Luxury SUV",
-      status: "In Stock",
-      year: 2022,
-      image: "/placeholder.svg?height=100&width=100&text=Audi",
-      description: "Three-row luxury SUV with Quattro all-wheel drive, panoramic sunroof, and premium interior."
-    },
-  ]
+        id: "prod_5",
+        name: "1977 Pontiac Firebird",
+        status: "Diarsipkan",
+        price: "55000.00",
+        stock: 0,
+        image: "https://placehold.co/80x80/333/FFF?text=Firebird",
+        description: "A distinctive and popular sports car."
+    }
+]
 
-  // Handle edit car
-  const handleEditCar = (car) => {
-    setCurrentCar(car)
-    setIsEditProductOpen(true)
-  }
-
-  // Filter cars based on search query and filters
-  const filteredCars = cars.filter(car => {
-    const matchesSearch = car.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = categoryFilter === "all" || car.category.toLowerCase().replace(" ", "-") === categoryFilter
-    const matchesStatus = statusFilter === "all-status" || car.status.toLowerCase().replace(" ", "-") === statusFilter
-    
-    return matchesSearch && matchesCategory && matchesStatus
-  })
-
+export default function AdminProductsPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Vehicle Management</h1>
-        <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Vehicle
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Add New Vehicle</DialogTitle>
-              <DialogDescription>Fill in the details to add a new vehicle to the inventory.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Vehicle Name
-                </Label>
-                <Input id="name" placeholder="2023 Mercedes-Benz S-Class" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="price" className="text-right">
-                  Price
-                </Label>
-                <Input id="price" type="number" placeholder="110000" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="year" className="text-right">
-                  Year
-                </Label>
-                <Input id="year" type="number" placeholder="2023" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="category" className="text-right">
-                  Category
-                </Label>
-                <Select>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="luxury-sedan">Luxury Sedan</SelectItem>
-                    <SelectItem value="luxury-suv">Luxury SUV</SelectItem>
-                    <SelectItem value="sports-car">Sports Car</SelectItem>
-                    <SelectItem value="electric">Electric</SelectItem>
-                    <SelectItem value="hybrid">Hybrid</SelectItem>
-                    <SelectItem value="sedan">Sedan</SelectItem>
-                    <SelectItem value="suv">SUV</SelectItem>
-                    <SelectItem value="truck">Truck</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
-                  Status
-                </Label>
-                <Select>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="in-stock">In Stock</SelectItem>
-                    <SelectItem value="on-order">On Order</SelectItem>
-                    <SelectItem value="sold">Sold</SelectItem>
-                    <SelectItem value="reserved">Reserved</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-start gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Enter vehicle description..."
-                  className="col-span-3 min-h-[100px]"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="image" className="text-right">
-                  Image
-                </Label>
-                <Input id="image" type="file" className="col-span-3" />
-              </div>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+            <div>
+                <CardTitle>Produk</CardTitle>
+                <CardDescription>
+                Kelola produk Anda dan lihat performa penjualan mereka.
+                </CardDescription>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddProductOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => setIsAddProductOpen(false)}>Add Vehicle</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="mb-6 flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-        <div className="relative w-full md:w-1/3">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-          <Input 
-            placeholder="Search vehicles..." 
-            className="pl-8" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+            <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" className="h-8 gap-1">
+                    <File className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Ekspor
+                    </span>
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="h-8 gap-1">
+                        <PlusCircle className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                        Tambah Produk
+                        </span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Tambah Produk Baru</DialogTitle>
+                      <DialogDescription>
+                        Isi detail produk di bawah ini. Klik simpan jika sudah selesai.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                          Nama
+                        </Label>
+                        <Input id="name" placeholder="Contoh: Ford Mustang 1967" className="col-span-3" />
+                      </div>
+                       <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="price" className="text-right">
+                          Harga
+                        </Label>
+                        <Input id="price" type="number" placeholder="65000" className="col-span-3" />
+                      </div>
+                       <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="stock" className="text-right">
+                          Stok
+                        </Label>
+                        <Input id="stock" type="number" placeholder="2" className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="description" className="text-right">
+                          Deskripsi
+                        </Label>
+                        <Textarea id="description" placeholder="Deskripsi singkat produk" className="col-span-3" />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit">Simpan Produk</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+            </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">Filter by:</span>
-          <Select 
-            value={categoryFilter}
-            onValueChange={setCategoryFilter}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="luxury-sedan">Luxury Sedan</SelectItem>
-              <SelectItem value="luxury-suv">Luxury SUV</SelectItem>
-              <SelectItem value="sports-car">Sports Car</SelectItem>
-              <SelectItem value="electric">Electric</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select 
-            value={statusFilter}
-            onValueChange={setStatusFilter}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all-status">All Status</SelectItem>
-              <SelectItem value="in-stock">In Stock</SelectItem>
-              <SelectItem value="on-order">On Order</SelectItem>
-              <SelectItem value="sold">Sold</SelectItem>
-              <SelectItem value="reserved">Reserved</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="rounded-md border">
+      </CardHeader>
+      <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Vehicle</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Year</TableHead>
-              <TableHead>Price</TableHead>
+              <TableHead className="hidden w-[100px] sm:table-cell">
+                <span className="sr-only">Gambar</span>
+              </TableHead>
+              <TableHead>Nama</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="hidden md:table-cell">Harga</TableHead>
+              <TableHead className="hidden md:table-cell">
+                Stok
+              </TableHead>
+              <TableHead>
+                <span className="sr-only">Aksi</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredCars.map((car) => (
-              <TableRow key={car.id}>
-                <TableCell>
-                  <div className="flex items-center space-x-3">
-                    <div className="relative h-10 w-10 overflow-hidden rounded-md">
-                      <Image src={car.image || "/placeholder.svg"} alt={car.name} fill className="object-cover" />
-                    </div>
-                    <span className="font-medium">{car.name}</span>
-                  </div>
+            {products.map((product) => (
+                <TableRow key={product.id}>
+                <TableCell className="hidden sm:table-cell">
+                    <Image
+                    alt="Product image"
+                    className="aspect-square rounded-md object-cover"
+                    height="64"
+                    src={product.image}
+                    width="64"
+                    />
                 </TableCell>
-                <TableCell>{car.category}</TableCell>
-                <TableCell>{car.year}</TableCell>
-                <TableCell>${car.price.toLocaleString()}</TableCell>
-                <TableCell>
-                  <Badge
-                    className={
-                      car.status === "In Stock"
-                        ? "bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-300"
-                        : car.status === "On Order"
-                        ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-300"
-                        : car.status === "Sold"
-                        ? "bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900 dark:text-red-300"
-                        : "bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-300"
-                    }
-                  >
-                    {car.status}
-                  </Badge>
+                <TableCell className="font-medium">
+                    {product.name}
                 </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
+                <TableCell>
+                    <Badge variant={product.status === 'Aktif' ? 'default' : 'outline'}>{product.status}</Badge>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                    ${parseFloat(product.price).toLocaleString()}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">{product.stock}</TableCell>
+                <TableCell>
+                    <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
+                        <Button
+                        aria-haspopup="true"
+                        size="icon"
+                        variant="ghost"
+                        >
                         <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
+                        <span className="sr-only">Toggle menu</span>
+                        </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditCar(car)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Car className="mr-2 h-4 w-4" />
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">
-                        <Trash className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
+                        <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit</DropdownMenuItem>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                    <DialogTitle>Edit Produk</DialogTitle>
+                                    <DialogDescription>
+                                        Lakukan perubahan pada produk Anda di sini. Klik simpan jika sudah selesai.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor={`name-${product.id}`} className="text-right">Nama</Label>
+                                        <Input id={`name-${product.id}`} defaultValue={product.name} className="col-span-3" />
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor={`price-${product.id}`} className="text-right">Harga</Label>
+                                        <Input id={`price-${product.id}`} type="number" defaultValue={product.price} className="col-span-3" />
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor={`stock-${product.id}`} className="text-right">Stok</Label>
+                                        <Input id={`stock-${product.id}`} type="number" defaultValue={product.stock} className="col-span-3" />
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor={`description-${product.id}`} className="text-right">Deskripsi</Label>
+                                        <Textarea id={`description-${product.id}`} defaultValue={product.description} className="col-span-3" />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                <Button type="submit">Simpan Perubahan</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 hover:!text-red-600 focus:!text-red-600">Hapus</DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Tindakan ini tidak bisa dibatalkan. Ini akan menghapus produk <strong>{product.name}</strong> secara permanen dari daftar.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction className="bg-red-600 hover:bg-red-700">Lanjutkan</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </DropdownMenuContent>
-                  </DropdownMenu>
+                    </DropdownMenu>
                 </TableCell>
-              </TableRow>
+                </TableRow>
             ))}
           </TableBody>
         </Table>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between">
-        <p className="text-sm text-gray-500">
-          Showing {filteredCars.length > 0 ? 1 : 0}-{filteredCars.length} of {filteredCars.length} vehicles
-        </p>
-        <div className="flex space-x-1">
-          <Button variant="outline" size="sm" disabled>
-            Previous
-          </Button>
-          <Button variant="outline" size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-            1
-          </Button>
-          <Button variant="outline" size="sm" disabled>
-            Next
-          </Button>
+      </CardContent>
+      <CardFooter>
+        <div className="text-xs text-muted-foreground">
+          Menampilkan <strong>1-5</strong> dari <strong>5</strong> produk
         </div>
-      </div>
-
-      {/* Edit Vehicle Dialog */}
-      {currentCar && (
-        <Dialog open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Edit Vehicle</DialogTitle>
-              <DialogDescription>Update the details of this vehicle in the inventory.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-name" className="text-right">
-                  Vehicle Name
-                </Label>
-                <Input id="edit-name" defaultValue={currentCar.name} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-price" className="text-right">
-                  Price
-                </Label>
-                <Input id="edit-price" type="number" defaultValue={currentCar.price} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-year" className="text-right">
-                  Year
-                </Label>
-                <Input id="edit-year" type="number" defaultValue={currentCar.year} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-category" className="text-right">
-                  Category
-                </Label>
-                <Select defaultValue={currentCar.category.toLowerCase().replace(" ", "-")}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="luxury-sedan">Luxury Sedan</SelectItem>
-                    <SelectItem value="luxury-suv">Luxury SUV</SelectItem>
-                    <SelectItem value="sports-car">Sports Car</SelectItem>
-                    <SelectItem value="electric">Electric</SelectItem>
-                    <SelectItem value="hybrid">Hybrid</SelectItem>
-                    <SelectItem value="sedan">Sedan</SelectItem>
-                    <SelectItem value="suv">SUV</SelectItem>
-                    <SelectItem value="truck">Truck</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-status" className="text-right">
-                  Status
-                </Label>
-                <Select defaultValue={currentCar.status.toLowerCase().replace(" ", "-")}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="in-stock">In Stock</SelectItem>
-                    <SelectItem value="on-order">On Order</SelectItem>
-                    <SelectItem value="sold">Sold</SelectItem>
-                    <SelectItem value="reserved">Reserved</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-start gap-4">
-                <Label htmlFor="edit-description" className="text-right">
-                  Description
-                </Label>
-                <Textarea
-                  id="edit-description"
-                  defaultValue={currentCar.description}
-                  className="col-span-3 min-h-[100px]"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-image" className="text-right">
-                  Image
-                </Label>
-                <div className="col-span-3 flex items-center gap-4">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-md">
-                    <Image src={currentCar.image || "/placeholder.svg"} alt={currentCar.name} fill className="object-cover" />
-                  </div>
-                  <Input id="edit-image" type="file" />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditProductOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => setIsEditProductOpen(false)}>Save Changes</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+      </CardFooter>
+    </Card>
   )
 }

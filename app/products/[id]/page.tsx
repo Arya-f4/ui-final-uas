@@ -81,11 +81,11 @@ const getCarById = (id: string): CarData | null => {
       stockNumber: "MB12345",
       location: "Main Showroom",
       images: [
-        "https://images.unsplash.com/photo-1616421233880-ca927d2e20b6?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1616421234424-038c114a8f9b?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1616421234390-5b4d7c9f7a7c?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1616421234336-6ide4a32b2f6?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      ],
+        "/products/2023-mercedes-benz-sclass.avif",
+        "/products/2023-mercedes-benz-sclass.avif",
+        "/products/2023-mercedes-benz-sclass.avif",
+        "/products/2023-mercedes-benz-sclass.avif",
+       ],
       description:
         "Experience unparalleled luxury with the 2023 Mercedes-Benz S-Class. This flagship sedan represents the pinnacle of automotive engineering, combining cutting-edge technology with exquisite craftsmanship. With its powerful V8 engine, advanced driver assistance systems, and sumptuous interior, the S-Class delivers an exceptional driving experience.",
       features: [
@@ -122,21 +122,21 @@ const getCarById = (id: string): CarData | null => {
           name: "2023 BMW X5",
           price: 65000,
           category: "Luxury SUV",
-          image: "https://images.unsplash.com/photo-1587930982522-e8b843d191a8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          image: "/products/2022-bmw-x3.avif",
         },
         {
           id: 3,
           name: "2023 Tesla Model 3",
           price: 45000,
           category: "Electric",
-          image: "https://images.unsplash.com/photo-1554495532-3e28a47d3368?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          image: "/products/2019-tesla-model3.avif",
         },
         {
           id: 4,
           name: "2023 Lexus LS",
           price: 78000,
           category: "Luxury Sedan",
-          image: "https://images.unsplash.com/photo-1623862414707-b04e6c967672?q=80&w=1854&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          image: "/products/2022-lexus-es350.jpg",
         },
       ],
       reviews: [
